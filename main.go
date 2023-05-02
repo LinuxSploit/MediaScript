@@ -23,7 +23,7 @@ var (
 	Application fyne.App
 	Window      fyne.Window
 	// models short name
-	Models []string = []string{"base.en", "small.en"}
+	Models []string = []string{}
 	// current model full name
 	CurrentModelName string
 	// output entry
