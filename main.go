@@ -22,12 +22,13 @@ import (
 var (
 	Application fyne.App
 	Window      fyne.Window
-	// models short name
+	// models
 	Models []string = []string{}
-	// current model full name
+	// languages
+	languages []string = []string{"English", "Arabic", "Armenian", "Azerbaijani", "Basque", "Belarusian", "Bengali", "Bulgarian", "Catalan", "Chinese", "Croatian", "Czech", "Danish", "Dutch", "English", "Estonian", "Filipino", "Finnish", "French", "Galician", "Georgian", "German", "Greek", "Gujarati", "Hebrew", "Hindi", "Hungarian", "Icelandic", "Indonesian", "Irish", "Italian", "Japanese", "Kannada", "Korean", "Latin", "Latvian", "Lithuanian", "Macedonian", "Malay", "Maltese", "Norwegian", "Persian", "Polish", "Portuguese", "Romanian", "Russian", "Serbian", "Slovak", "Slovenian", "Spanish", "Swahili", "Swedish", "Tamil", "Telugu", "Thai", "Turkish", "Ukrainian", "Urdu", "Vietnamese", "Welsh", "Yiddish"}
+	// current model
 	CurrentModelName string
-	// output entry
-	outputScript *widget.Entry = widget.NewEntry()
+	MediaLanguage    string
 )
 
 func getGGMLFiles(dirPath string) []string {
@@ -100,6 +101,13 @@ func UIcanvas() fyne.CanvasObject {
 	})
 	modelSelect.SetSelectedIndex(0)
 
+	// Select widget to select a language
+	langSelect := widget.NewSelect(languages, func(s string) {
+		MediaLanguage = s
+		log.Println(MediaLanguage)
+	})
+	langSelect.SetSelected("English")
+
 	// multiline entry for media tab output
 	outputScript := widget.NewMultiLineEntry()
 	outputScript.Wrapping = fyne.TextWrapWord
@@ -122,7 +130,7 @@ func UIcanvas() fyne.CanvasObject {
 		}
 		progressbar.Show()
 		progressbar.Start()
-		if err := atranscriber.Transcribe("./models/" + CurrentModelName); err != nil {
+		if err := atranscriber.Transcribe("./models/"+CurrentModelName, langSelect.Selected); err != nil {
 			log.Fatal(err)
 		}
 		progressbar.Stop()
@@ -141,6 +149,7 @@ func UIcanvas() fyne.CanvasObject {
 	// Tab 1 : Media tab for input
 	mediaTab := container.NewTabItemWithIcon("Media", theme.MediaPlayIcon(), container.NewVBox(
 		filecard,
+		langSelect,
 		modelSelect,
 		convertBtn,
 		progressbar,
@@ -171,10 +180,10 @@ func UIcanvas() fyne.CanvasObject {
 		Window.Clipboard().SetContent(outputScript.Text)
 		///
 		dialog.NewFileSave(func(uc fyne.URIWriteCloser, err error) {
-			/* if File open dialog cancelled, then return
+			//if File save dialog cancelled, then return
 			if uc == nil {
 				return
-			}*/
+			}
 			fmt.Println(uc.URI().Path())
 			ioutil.WriteFile(uc.URI().Path(), []byte(outputScript.Text), 0644)
 		}, Window).Show()

@@ -3,6 +3,7 @@ package transcriber
 import (
 	"errors"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +11,10 @@ import (
 
 	"github.com/ggerganov/whisper.cpp/bindings/go/pkg/whisper"
 	wav "github.com/go-audio/wav"
+)
+
+var (
+	languages = map[string]string{"English": "en", "Arabic": "ar", "Armenian": "hy", "Azerbaijani": "az", "Basque": "eu", "Belarusian": "be", "Bengali": "bn", "Bulgarian": "bg", "Catalan": "ca", "Chinese": "zh", "Croatian": "hr", "Czech": "cs", "Danish": "da", "Dutch": "nl", "Estonian": "et", "Filipino": "tl", "Finnish": "fi", "French": "fr", "Galician": "gl", "Georgian": "ka", "German": "de", "Greek": "el", "Gujarati": "gu", "Hebrew": "iw", "Hindi": "hi", "Hungarian": "hu", "Icelandic": "is", "Indonesian": "id", "Irish": "ga", "Italian": "it", "Japanese": "ja", "Kannada": "kn", "Korean": "ko", "Latin": "la", "Latvian": "lv", "Lithuanian": "lt", "Macedonian": "mk", "Malay": "ms", "Maltese": "mt", "Norwegian": "no", "Persian": "fa", "Polish": "pl", "Portuguese": "pt", "Romanian": "ro", "Russian": "ru", "Serbian": "sr", "Slovak": "sk", "Slovenian": "sl", "Spanish": "es", "Swahili": "sw", "Swedish": "sv", "Tamil": "ta", "Telugu": "te", "Thai": "th", "Turkish": "tr", "Ukrainian": "uk", "Urdu": "ur", "Vietnamese": "vi", "Welsh": "cy", "Yiddish": "yi"}
 )
 
 type ScriptLine struct {
@@ -80,7 +85,7 @@ func (x *Transcriber) ReadWav(wavpath string) error {
 
 }
 
-func (x *Transcriber) Transcribe(modelpath string) error {
+func (x *Transcriber) Transcribe(modelpath string, lang string) error {
 	// check if model file exist
 	modelpath, err := filepath.Abs(modelpath)
 	if err != nil {
@@ -99,6 +104,8 @@ func (x *Transcriber) Transcribe(modelpath string) error {
 		return err
 	}
 
+	log.Println(lang, languages[lang])
+	context.SetLanguage(languages[lang])
 	if err := context.Process(x.Sample, nil); err != nil {
 		return err
 	}
