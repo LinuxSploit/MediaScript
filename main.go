@@ -47,9 +47,7 @@ func getGGMLFiles(dirPath string) []string {
 func init() {
 	Models = getGGMLFiles("./models")
 }
-func getoutput() string {
-	return outputScript.Text
-}
+
 func main() {
 	// Init returns an error if the package is not ready for use.
 	err := clipboard.Init()
@@ -168,9 +166,19 @@ func UIcanvas() fyne.CanvasObject {
 		)),
 	)
 	// copy action toolbar
-	Window.SetMainMenu(fyne.NewMainMenu(fyne.NewMenu("Action", fyne.NewMenuItem("Copy Output", func() {
+	Window.SetMainMenu(fyne.NewMainMenu(fyne.NewMenu("Action", fyne.NewMenuItem("export .srt", func() {
 		fmt.Println("copy")
 		Window.Clipboard().SetContent(outputScript.Text)
+		///
+		dialog.NewFileSave(func(uc fyne.URIWriteCloser, err error) {
+			/* if File open dialog cancelled, then return
+			if uc == nil {
+				return
+			}*/
+			fmt.Println(uc.URI().Path())
+			ioutil.WriteFile(uc.URI().Path(), []byte(outputScript.Text), 0644)
+		}, Window).Show()
+		///
 	}))))
 
 	tabs.SetTabLocation(container.TabLocationLeading)
